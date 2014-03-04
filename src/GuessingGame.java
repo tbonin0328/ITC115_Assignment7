@@ -16,6 +16,7 @@ public class GuessingGame
     private int numGames = 0;
     private int numGuessesThis = 0;
     private int numGuessesAll = 0;
+    private int bestScore = 50;
     private int goalNum = 0;
     private int yourGuess = 0;
     private String loseMessage = "Sorry, you lost this round";
@@ -52,9 +53,14 @@ public class GuessingGame
 		System.out.println("Your Overall Results:");
 		System.out.println("Total Games: " + numGames);
 		System.out.println("Guesses/game: " + numGuessesAll/numGames);
-		System.out.println("Best Score:" );
+		System.out.println("Best Score:" + bestScore);
 	}
 
+	/**
+	 * This method increases the number of games by one and resets the number of guesses
+	 * for this game only to 0. The method then processes newGuess() as long as the
+	 * number of guesses is less than or equal to 50. 
+	 */
 	private void newGame() 
 	{
 		numGames++;
@@ -63,24 +69,43 @@ public class GuessingGame
 		{
 			newGuess();
 		}
-		numGuessesThis++;
+		
 	}
 	
 	private void newGuess()
 	{
-		goalNum = makeGoalNum();
-		yourGuess = takeGuess();
+		goalNum = makeGoalNum(); //20
 		
-		while (!testGuess(yourGuess, goalNum))
+		while (true)
 		{
-			yourGuess = takeGuess();
+			yourGuess = Guess(); //yourGuess = 6
 			numGuessesThis++;
 			numGuessesAll++;
-			testGuess(yourGuess, goalNum);
+			
+			if (yourGuess == goalNum)
+			{
+				winProcess();
+				break;
+			}
+			else if (yourGuess > goalNum)
+			{
+				printLine(lowerMessage);
+				System.out.println(goalNum);
+				guessesLeft(numGuessesThis);
+			}
+			else
+			{
+				printLine(higherMessage);
+				System.out.println(goalNum);
+				guessesLeft(numGuessesThis);
+			}
 		}
-		winMessage();
-		//put numGuessesThis in gameTotals array.
-		
+		return;
+	}
+
+	private void guessesLeft(int numGuesses) 
+	{	
+		printLine("You have " + (MAX_GUESSES - numGuesses) + " guesses left.");
 	}
 
 	private boolean testGuess(int guess, int goal) 
@@ -88,27 +113,13 @@ public class GuessingGame
 		return guess == goal;
 	}
 
-	private void winMessage() 
+	private void winProcess() 
 	{
 		System.out.println("You guessed it in " + numGuessesThis + " guess(es)");
-	}
-
-	private int takeGuess(int guess, int goal) 
-	{
-		if (guess > goal)
+		if (numGuessesThis <= bestScore)
 		{
-			printLine(lowerMessage);
-			readInt("Your guess? ");
+			numGuessesThis = bestScore;	
 		}
-
-		if (guess < goal);
-		{
-			printLine(higherMessage);
-			takeGuess();
-		}
-		winMessage();
-		printLine(loseMessage);
-		
 	}
 
 	private int makeGoalNum() 
@@ -139,6 +150,11 @@ public class GuessingGame
 	{
 		System.out.print(prompt);
 		return in.nextInt();
+	}
+	
+	public int Guess()
+	{
+		return readInt("Your guess? ");
 	}
 	
 	public static void main(String[] args)
