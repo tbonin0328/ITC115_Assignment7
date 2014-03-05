@@ -17,6 +17,7 @@ public class GuessingGame
     private int numGuessesThis = 0;
     private int numGuessesAll = 0;
     private int bestScore = 50;
+    private int firstAsk = 0;
     private int goalNum = 0;
     private int yourGuess = 0;
     private String loseMessage = "Sorry, you lost this round";
@@ -31,25 +32,31 @@ public class GuessingGame
 	 */
 	public void play()
 	{
-		System.out.println("I'm thinking of a number between 1 and 100...");
 		
-		do
+		//firstAsk = Guess();
+		//System.out.println(numGuessesThis);
+		
+		do 
 		{
 			newGame();
 		}
-		while(playAgain());
-		gameResults();
+		while (playAgain());
 	}
 	
 	/**
-	 * This method posts results of the game when called. It uses the numGames
-	 * variable to post total games played. It uses numGuessesAll/numGames to 
-	 * post Guesses/game. To calculate best score, it takes the game results from the 
-	 * array of results and finds the lowest number of guesses needed to win from the 
-	 * numGuessesAll array.
+	 * This method posts results of the game when called. First, it finds out if 
+	 * the number of guesses for the game just won is less than or equal to the
+	 * best score on record. If so, it changes the bestScore to numGuessesThis.
+	 * The method then uses the numGames variable to post total games played. It 
+	 * uses numGuessesAll/numGames to post Guesses/game. It posts the bestScore
+	 * derived from the if statement at the top of this method.
 	 */
 	private void gameResults() 
 	{
+		if (numGuessesThis <= bestScore)
+		{
+			numGuessesThis = bestScore;	
+		}
 		System.out.println("Your Overall Results:");
 		System.out.println("Total Games: " + numGames);
 		System.out.println("Guesses/game: " + numGuessesAll/numGames);
@@ -63,55 +70,64 @@ public class GuessingGame
 	 */
 	private void newGame() 
 	{
+		//because new game has been selected, increment numGames for gameResults method.
 		numGames++;
+		//because new game has been selected, set number of guesses for this game back to zero.
 		numGuessesThis = 0;
-		while (numGuessesThis <= 50)
-		{
-			newGuess();
-		}
-		
+		//start the guess process.
+		System.out.println("I'm thinking of a number between 1 and 100...");
+		//process first game
+		newGuess();
 	}
 	
 	private void newGuess()
 	{
 		goalNum = makeGoalNum(); //20
 		
-		while (true)
+		if (numGuessesThis <= 50)
 		{
-			yourGuess = Guess(); //yourGuess = 6
-			numGuessesThis++;
-			numGuessesAll++;
-			
-			if (yourGuess == goalNum)
+			while(true)
 			{
-				winProcess();
-				break;
-			}
-			else if (yourGuess > goalNum)
-			{
-				printLine(lowerMessage);
-				System.out.println(goalNum);
-				guessesLeft(numGuessesThis);
-			}
-			else
-			{
-				printLine(higherMessage);
-				System.out.println(goalNum);
-				guessesLeft(numGuessesThis);
+				yourGuess = Guess(); //yourGuess = 6
+	
+				if (yourGuess == goalNum)
+				{
+					winProcess();
+					break;
+				}
+				else if (yourGuess > goalNum)
+				{
+					printLine(lowerMessage);
+					System.out.println(goalNum + ", " + numGuessesThis + ", " + numGuessesAll);
+					guessesLeft(numGuessesThis);
+				}
+				else if (yourGuess < goalNum)
+				{
+					printLine(higherMessage);
+					System.out.println(goalNum + ", " + numGuessesThis + ", " + numGuessesAll);
+					guessesLeft(numGuessesThis);
+				}
+				else
+				{
+					printLine("Not a guess");
+				}
 			}
 		}
-		return;
+		else 
+		{
+			printLine(loseMessage);
+		}
 	}
 
 	private void guessesLeft(int numGuesses) 
 	{	
 		printLine("You have " + (MAX_GUESSES - numGuesses) + " guesses left.");
 	}
-
-	private boolean testGuess(int guess, int goal) 
-	{
-		return guess == goal;
-	}
+	
+	//private boolean firstAskTest()
+	//{
+		
+	//}
 
 	private void winProcess() 
 	{
@@ -130,6 +146,11 @@ public class GuessingGame
 	public boolean playAgain()
 	{
 		String answer = readLine("Play again?").toLowerCase();
+		if (!answer.equals("y"))
+		{
+			gameResults();
+			return false;
+		}
 		return answer.equals("y");
 	}
 	
@@ -154,6 +175,8 @@ public class GuessingGame
 	
 	public int Guess()
 	{
+		numGuessesThis++;
+		numGuessesAll++;
 		return readInt("Your guess? ");
 	}
 	
